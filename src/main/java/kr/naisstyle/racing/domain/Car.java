@@ -35,4 +35,14 @@ public class Car implements Serializable {
 	public int getMoveCount(CAR_STATUS carStatus) {
 		return CAR_STATUS.MOVE == carStatus ? moveCount.addAndGet(1) : moveCount.get();
 	}
+
+	public void printRacingProgress() {
+		StringBuilder progress = new StringBuilder();
+		progress.append(this.carName);
+		progress.append(" : ");
+		for (int i = 0; i < this.moveCount.get(); i++) {
+			progress.append('-');
+		}
+		System.out.println(progress);
+	}
 }
