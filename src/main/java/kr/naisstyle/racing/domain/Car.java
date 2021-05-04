@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import kr.naisstyle.racing.RacingGameUtils.*;
+import kr.naisstyle.racing.RacingGameUtils;
+import kr.naisstyle.racing.enums.CarStatus;
 
 public class Car implements Serializable {
 
@@ -15,7 +16,11 @@ public class Car implements Serializable {
 	private final Random random;
 
 	public Car(String carName) {
-		this.carName = carName;
+		if(RacingGameUtils.invalidCarName(carName)){
+			throw new IllegalArgumentException("자동차 이름은 1~5자리");
+		}
+
+		this.carName = carName.trim();
 		this.moveCount = new AtomicInteger();
 		this.random = new Random();
 	}
@@ -28,12 +33,14 @@ public class Car implements Serializable {
 		return moveCount;
 	}
 
-	public CAR_STATUS getCarStatus() {
-		return this.random.nextInt(9) >= 4 ? CAR_STATUS.MOVE : CAR_STATUS.STOP;
+	public CarStatus getCarStatus() {
+		return this.random.nextInt(9) >= 4 ? CarStatus.GO : CarStatus.STOP;
 	}
 
-	public int getMoveCount(CAR_STATUS carStatus) {
-		return CAR_STATUS.MOVE == carStatus ? moveCount.addAndGet(1) : moveCount.get();
+	public void goAndStop(CarStatus carStatus) {
+		if(carStatus.isGo()) {
+			moveCount.incrementAndGet();
+		}
 	}
 
 	public void printRacingProgress() {
@@ -44,5 +51,14 @@ public class Car implements Serializable {
 			progress.append('-');
 		}
 		System.out.println(progress);
+	}
+
+	public void racing() {
+		this.goAndStop(this.getCarStatus());
+		this.printRacingProgress();
+	}
+
+	public boolean isWinner(int maxMove) {
+		return this.moveCount.get() == maxMove;
 	}
 }
