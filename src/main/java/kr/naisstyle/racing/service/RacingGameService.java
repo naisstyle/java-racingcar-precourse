@@ -1,10 +1,13 @@
 package kr.naisstyle.racing.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import kr.naisstyle.racing.domain.Car;
+import kr.naisstyle.racing.utils.RacingGameUtils;
 
 public class RacingGameService {
 	Scanner scanner;
@@ -21,19 +24,35 @@ public class RacingGameService {
 
 	public void createRacingCars() {
 		System.out.println("경주할 자동차 이름을 입력하세요.(이름은 쉼표(,) 기준으로 구분)");
-		String[] carNames = scanner.nextLine().split(",");
-		for (String carName : carNames) {
-			carList.add(new Car(carName));
+		List<String> carNames = Arrays.asList(scanner.nextLine().split(","));
+		try {
+			for (String carName : carNames) {
+				carList.add(new Car(carName));
+			}
+		} catch (IllegalArgumentException e) {
+			System.out.println("입렵값 오류 : " + e.getMessage());
+			createRacingCars();
 		}
 	}
 
-	public void setTryCount() {
+	public void inputTryCount() {
 		System.out.println("시도 횟수는 몇회인가요?");
-		this.totalTryCount = scanner.nextInt();
 
-		if (totalTryCount <= 0) {
-			throw new IllegalArgumentException("시도 횟수 입력값 오류");
+		String inputTryCount = scanner.nextLine();
+		try {
+			this.totalTryCount = this.convertTotalTryCount(inputTryCount);
+		} catch (InputMismatchException | IllegalArgumentException e) {
+			System.out.println("1이상의 숫자만 입력하세요!");
+			inputTryCount();
 		}
+	}
+
+	public int convertTotalTryCount(String inputTryCount) {
+		if(!RacingGameUtils.validTotalTryCount(inputTryCount)) {
+			throw new IllegalArgumentException();
+		}
+
+		return Integer.parseInt(inputTryCount);
 	}
 
 	public void play() {
